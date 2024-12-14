@@ -28,7 +28,9 @@ export async function POST(req: Request) {
     
     Question: ${query}
     
-    Provide specific insights and use numbers when relevant.`
+    Provide specific insights and use numbers when relevant.
+    
+    Be neat and consistent with your formatting, using headers, subheaders, and bullet points when necessary, maintaining a consistent hierarchy.`
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
