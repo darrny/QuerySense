@@ -38,6 +38,8 @@ export async function POST(req: Request) {
     **Subtitle:**
     - Bullet point
     
+    Be as insightful as possible and provide a detailed analysis of the data.
+                
     Data: ${dataDescription}
     Question: ${query}`;
     

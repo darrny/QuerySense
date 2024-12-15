@@ -2,47 +2,52 @@ import DataVisualizations from './DataVisualizations'
 
 export default function AnalysisResult({ result, data }: { result: string, data: any[] }) {
     const formatText = (text: string) => {
-        return text.split('\n').map((line, index) => {
+        // Split text into sections for better spacing control
+        const sections = text.split('\n').reduce((acc: string[][], line) => {
             const trimmedLine = line.trim();
-
-            // Handle main titles
-            if (trimmedLine.match(/^\*\*[^:]+\*\*$/)) {
-                return (
-                    <h2 key={index} className="text-2xl font-bold text-gray-900 mb-6 mt-16">
-                        {trimmedLine.replace(/\*\*/g, '')}
-                    </h2>
-                );
+            if (trimmedLine.match(/^\*\*[^*]+\*\*$/)) {
+                // Start new section when encountering a header
+                acc.push([trimmedLine]);
+            } else if (acc.length > 0 && trimmedLine) {
+                // Add content to current section
+                acc[acc.length - 1].push(trimmedLine);
             }
+            return acc;
+        }, []);
 
-            // Handle subtitles (with colon)
-            if (trimmedLine.match(/^\*\*[^:]+:\*\*$/)) {
-                return (
-                    <h3 key={index} className="text-xl font-semibold text-gray-800 mb-4 mt-8">
-                        {trimmedLine.replace(/\*\*/g, '')}
-                    </h3>
-                );
-            }
+        return sections.map((section, sectionIndex) => {
+            return (
+                <div key={sectionIndex} className="mb-12"> {/* Consistent bottom spacing for sections */}
+                    {section.map((line, lineIndex) => {
+                        const trimmedLine = line.trim();
 
-            // Handle bullet points
-            if (trimmedLine.startsWith('-')) {
-                return (
-                    <li key={index} className="ml-6 mb-3 text-gray-700">
-                        {trimmedLine.substring(1).trim()}
-                    </li>
-                );
-            }
+                        // Handle section headers
+                        if (trimmedLine.match(/^\*\*[^*]+\*\*$/)) {
+                            return (
+                                <h3 key={lineIndex} className="text-xl font-semibold text-gray-900 mb-6">
+                                    {trimmedLine.replace(/\*\*/g, '')}
+                                </h3>
+                            );
+                        }
 
-            // Handle regular paragraphs
-            if (trimmedLine.length > 0) {
-                return (
-                    <p key={index} className="mb-4 text-gray-700">
-                        {trimmedLine}
-                    </p>
-                );
-            }
+                        // Handle bullet points
+                        if (trimmedLine.startsWith('*')) {
+                            return (
+                                <li key={lineIndex} className="ml-6 mb-3 text-gray-700">
+                                    {trimmedLine.substring(1).trim()}
+                                </li>
+                            );
+                        }
 
-            // Handle empty lines
-            return <div key={index} className="mb-2" />;
+                        // Handle regular paragraphs
+                        return (
+                            <p key={lineIndex} className="mb-4 text-gray-700">
+                                {trimmedLine}
+                            </p>
+                        );
+                    })}
+                </div>
+            );
         });
     };
 
@@ -56,8 +61,8 @@ export default function AnalysisResult({ result, data }: { result: string, data:
                 </div>
             </div>
 
-            <div className="mt-20">
-                <h2 className="text-2xl font-bold text-gray-900 mb-8">Data Visualizations</h2>
+            <div className="mt-16">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-8">Data Visualizations</h2>
                 <div className="mt-4">
                     <DataVisualizations data={data} />
                 </div>
