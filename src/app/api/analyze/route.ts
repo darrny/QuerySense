@@ -22,16 +22,20 @@ export async function POST(req: Request) {
 
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
     
-    const prompt = `As a data analysis assistant, analyze this data and answer the following question:
+    const prompt = `As a data analysis assistant, analyze this data and answer the following question.
+    Please use these exact formatting rules:
+    
+    1. Main titles should be wrapped in "**Title**"
+    2. Subtitles should be wrapped in "##Subtitle##"
+    3. Use simple hyphens (-) for all bullet points
+    4. Regular paragraphs should have no special formatting
     
     Data: ${dataDescription}
     
     Question: ${query}
     
-    Provide specific insights and use numbers when relevant.
+    Provide your analysis using these formatting rules.`;
     
-    Be neat and consistent with your formatting, using headers, subheaders, and bullet points when necessary, maintaining a consistent hierarchy.`
-
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
