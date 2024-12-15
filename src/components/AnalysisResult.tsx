@@ -5,8 +5,8 @@ export default function AnalysisResult({ result, data }: { result: string, data:
         return text.split('\n').map((line, index) => {
             const trimmedLine = line.trim();
 
-            // Handle main titles (wrapped in **)
-            if (trimmedLine.startsWith('**') && trimmedLine.endsWith('**')) {
+            // Handle main titles
+            if (trimmedLine.match(/^\*\*[^:]+\*\*$/)) {
                 return (
                     <h2 key={index} className="text-2xl font-bold text-gray-900 mb-6 mt-16">
                         {trimmedLine.replace(/\*\*/g, '')}
@@ -14,11 +14,11 @@ export default function AnalysisResult({ result, data }: { result: string, data:
                 );
             }
 
-            // Handle subtitles (wrapped in ##)
-            if (trimmedLine.startsWith('##') && trimmedLine.endsWith('##')) {
+            // Handle subtitles (with colon)
+            if (trimmedLine.match(/^\*\*[^:]+:\*\*$/)) {
                 return (
                     <h3 key={index} className="text-xl font-semibold text-gray-800 mb-4 mt-8">
-                        {trimmedLine.replace(/##/g, '')}
+                        {trimmedLine.replace(/\*\*/g, '')}
                     </h3>
                 );
             }
@@ -32,7 +32,7 @@ export default function AnalysisResult({ result, data }: { result: string, data:
                 );
             }
 
-            // Handle regular paragraphs (non-empty lines)
+            // Handle regular paragraphs
             if (trimmedLine.length > 0) {
                 return (
                     <p key={index} className="mb-4 text-gray-700">
@@ -42,7 +42,7 @@ export default function AnalysisResult({ result, data }: { result: string, data:
             }
 
             // Handle empty lines
-            return <div key={index} className="mb-4" />;
+            return <div key={index} className="mb-2" />;
         });
     };
 
