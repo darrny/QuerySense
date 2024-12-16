@@ -68,7 +68,7 @@ export default function AnalysisResult({ result, data }: { result: string, data:
     return (
         <div className="space-y-8">
             <div>
-                <div className="prose max-w-none">
+                <div className="prose max-w-none bg-white p-6 rounded-lg border border-blue-200 shadow-sm">
                     <ul className="space-y-2 list-disc">
                         {formatText(result)}
                     </ul>
@@ -76,11 +76,11 @@ export default function AnalysisResult({ result, data }: { result: string, data:
             </div>
 
             <div className="mt-16">
-                <h2 className="text-2xl font-semibold text-gray-900 mb-8">Data Visualizations</h2>
+                <h2 className="text-2xl font-semibold text-blue-900 mb-8">Data Visualizations</h2>
                 <div className="mt-4">
                     <DataVisualizations data={data} />
                 </div>
             </div>
         </div>
-    )
+    );
 }

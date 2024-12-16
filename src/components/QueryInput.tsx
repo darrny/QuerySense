@@ -73,11 +73,11 @@ export default function QueryInput({
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask a question about your data..."
-                className="w-full p-4 border rounded-lg mb-4 h-32"
+                className="w-full p-4 border border-blue-200 rounded-lg mb-4 h-32 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
 
             {error && (
-                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
+                <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg text-blue-800">
                     <p className="mb-2 font-semibold">Error Message:</p>
                     <p>{error}</p>
                     <p className="mt-2 text-sm">
@@ -95,12 +95,12 @@ export default function QueryInput({
                 onClick={handleAnalysis}
                 disabled={isLoading || !query.trim()}
                 className={`
-          w-full py-2 px-4 rounded-lg font-medium text-white transition-colors
-          ${isLoading || !query.trim()
-                        ? 'bg-gray-400 cursor-not-allowed'
+              w-full py-2 px-4 rounded-lg font-medium text-white transition-colors
+              ${isLoading || !query.trim()
+                        ? 'bg-blue-300 cursor-not-allowed'
                         : 'bg-blue-600 hover:bg-blue-700'
                     }
-        `}
+            `}
             >
                 {isLoading ? 'Analyzing...' : 'Analyze'}
             </button>
