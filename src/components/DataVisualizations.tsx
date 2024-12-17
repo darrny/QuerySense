@@ -10,62 +10,91 @@ interface DataVisualizationsProps {
   data: any[]
 }
 
+interface ChartData {
+  name: string;
+  value: number;
+}
+
+interface ColumnAnalysis {
+  name: string;
+  displayName: string;
+  uniqueCount: number;
+  totalCount: number;
+  isNumeric: boolean;
+  isDate: boolean;
+  distribution: ChartData[];
+}
+
 export default function DataVisualizations({ data }: DataVisualizationsProps) {
   if (!data || data.length === 0 || !data[0]) {
-    return <div>No data available for visualization</div>
+    return <div className="text-white">No data available for visualization</div>
   }
 
-  const safeToString = (value: any): string => {
-    if (value === null || value === undefined) return '';
-    return String(value);
-  }
+  const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
-  const formatColumnName = (name: string): string => {
-    // Convert camelCase or snake_case to spaces
-    const formatted = name
-      .replace(/([A-Z])/g, ' $1') // Add space before capital letters
-      .replace(/_/g, ' ') // Replace underscores with spaces
-      .replace(/\s+/g, ' ') // Remove extra spaces
-      .trim();
+  const determineChartType = (column: ColumnAnalysis): 'pie' | 'bar' | null => {
+    if (column.name.toLowerCase().includes('id')) return null;
+    if (column.isNumeric) {
+      return column.uniqueCount <= 10 ? 'bar' : null;
+    }
+    return column.uniqueCount <= 8 ? 'pie' : 'bar';
+  };
+
+  const createHistogramData = (values: number[]): ChartData[] => {
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const binCount = Math.min(10, Math.ceil(Math.sqrt(values.length)));
+    const binWidth = (max - min) / binCount;
     
-    // Capitalize first letter of each word
-    return formatted
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  }
+    const bins = Array(binCount).fill(0);
+    values.forEach(value => {
+      const binIndex = Math.min(Math.floor((value - min) / binWidth), binCount - 1);
+      bins[binIndex]++;
+    });
 
-  const isDate = (str: string): boolean => {
-    if (!str) return false;
-    const date = new Date(str);
-    return date instanceof Date && !isNaN(date.getTime());
-  }
+    return bins.map((count, i) => ({
+      name: `${(min + i * binWidth).toFixed(1)}-${(min + (i + 1) * binWidth).toFixed(1)}`,
+      value: (count / values.length) * 100
+    }));
+  };
 
-  const isNumeric = (value: any): boolean => {
-    if (value === null || value === undefined) return false;
-    return !isNaN(parseFloat(value)) && isFinite(value);
-  }
-
-  const analyzeColumns = () => {
+  const analyzeColumns = (): ColumnAnalysis[] => {
     const columns = Object.keys(data[0]);
     return columns.map(column => {
-      const values = data.map(row => row[column]).filter(v => v !== null && v !== undefined);
+      const values = data.map(row => row[column])
+        .filter(v => v !== null && v !== undefined);
       const uniqueValues = new Set(values);
       
-      const distribution = values.reduce((acc: {[key: string]: number}, val) => {
-        const key = safeToString(val);
-        acc[key] = (acc[key] || 0) + 1;
-        return acc;
-      }, {});
+      const numericValues = values.map(v => parseFloat(v)).filter(v => !isNaN(v));
+      const isNumeric = numericValues.length === values.length;
+      
+      let distribution: ChartData[];
+      if (isNumeric) {
+        distribution = createHistogramData(numericValues);
+      } else {
+        const tempDist: { [key: string]: number } = {};
+        values.forEach(val => {
+          const key = String(val);
+          tempDist[key] = (tempDist[key] || 0) + 1;
+        });
+        distribution = Object.entries(tempDist).map(([key, value]) => ({
+          name: key,
+          value: (value / values.length) * 100
+        })).sort((a, b) => b.value - a.value);
+      }
 
       return {
         name: column,
-        displayName: formatColumnName(column),
+        displayName: column.replace(/([A-Z])/g, ' $1')
+          .replace(/_/g, ' ')
+          .trim()
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' '),
         uniqueCount: uniqueValues.size,
         totalCount: values.length,
-        isNumeric: values.every(v => isNumeric(v)),
-        isDate: values.every(v => isDate(safeToString(v))),
-        hasLowCardinality: uniqueValues.size <= 10,
+        isNumeric,
+        isDate: values.every(v => !isNaN(Date.parse(String(v)))),
         distribution
       };
     });
@@ -73,105 +102,80 @@ export default function DataVisualizations({ data }: DataVisualizationsProps) {
 
   const createVisualizations = () => {
     const analysis = analyzeColumns();
-    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
-
+    
     return analysis.map((col, index) => {
-      if (col.name.toLowerCase().includes('id') || 
-          (!col.hasLowCardinality && !col.isNumeric) ||
-          col.uniqueCount <= 1) {
-        return null;
-      }
-
-      // Format data labels
-      const formatLabel = (label: string) => {
-        if (label.length <= 20) return label;
-        return label.substring(0, 17) + '...';
-      };
-
-      const chartData = Object.entries(col.distribution)
-        .map(([key, value]) => ({
-          name: formatLabel(key),
-          fullName: key, // Keep full name for tooltip
-          value: (value / col.totalCount) * 100
-        }))
-        .sort((a, b) => b.value - a.value);
-
-      const CustomTooltip = ({ active, payload, label }: any) => {
-        if (active && payload && payload.length) {
-          return (
-            <div className="bg-white p-2 border rounded shadow">
-              <p className="text-sm">{payload[0].payload.fullName}</p>
-              <p className="text-sm font-semibold">{`${payload[0].value.toFixed(1)}%`}</p>
-            </div>
-          );
-        }
-        return null;
-      };
-
-      if (col.hasLowCardinality && !col.isNumeric) {
-        return (
-          <div key={index} className="mb-12 p-6 bg-white rounded-lg shadow">
-            <h3 className="text-lg font-semibold mb-6">{col.displayName}</h3>
-            <div className="h-96">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={chartData}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={120}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({name, value}) => `${name} (${value.toFixed(1)}%)`}
-                  >
-                    {chartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<CustomTooltip />} />
-                  <Legend verticalAlign="bottom" height={36} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        );
-      }
+      const chartType = determineChartType(col);
+      if (!chartType) return null;
 
       return (
         <div key={index} className="mb-12 p-6 bg-white rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-6">{col.displayName}</h3>
-          <div className="h-96"> {/* Keep height consistent */}
+          <h3 className="text-lg font-semibold text-gray-900 mb-6">{col.displayName}</h3>
+          <div className="h-96">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart 
-                data={chartData}
-                // Add proper margins on all sides
-                margin={{ 
-                  top: 20,    // Add top margin
-                  right: 30,  // Space for potential overflow on right
-                  bottom: 90, // Keep space for rotated labels
-                  left: 60    // Increased left margin for y-axis label
-                }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="name" 
-                  interval={0}
-                  angle={-45}
-                  textAnchor="end"
-                  height={80}
-                  tick={{ fontSize: 12 }}
-                />
-                <YAxis 
-                  label={{ 
-                    value: 'Percentage (%)', 
-                    angle: -90, 
-                    position: 'insideLeft',
-                    offset: -40  // Adjusted offset to move label closer to axis
-                  }} 
-                />
-                <Tooltip formatter={(value: number) => `${value.toFixed(1)}%`} />
-                <Bar dataKey="value" fill="#8884d8" />
-              </BarChart>
+              {chartType === 'pie' ? (
+                <PieChart>
+                  <Pie
+                    data={col.distribution}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={120}
+                    dataKey="value"
+                    label={({name, value}) => `${name} (${value.toFixed(1)}%)`}
+                  >
+                    {col.distribution.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value: number) => `${value.toFixed(1)}%`}
+                    contentStyle={{ backgroundColor: 'white', border: '1px solid #ccc' }}
+                  />
+                  <Legend 
+                    verticalAlign="bottom" 
+                    height={36}
+                    formatter={(value) => <span className="text-gray-900">{value}</span>}
+                  />
+                </PieChart>
+              ) : (
+                <BarChart
+                  data={col.distribution}
+                  margin={{ top: 20, right: 30, bottom: 90, left: 60 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="name"
+                    interval={0}
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
+                    tick={{ fill: 'rgb(17, 24, 39)' }}
+                    label={{ 
+                      value: col.displayName,
+                      position: 'insideBottom',
+                      offset: -10,
+                      fill: 'rgb(17, 24, 39)'
+                    }}
+                  />
+                  <YAxis
+                    tick={{ fill: 'rgb(17, 24, 39)' }}
+                    label={{ 
+                      value: 'Percentage (%)', 
+                      angle: -90,
+                      position: 'insideLeft',
+                      offset: -40,
+                      fill: 'rgb(17, 24, 39)'
+                    }}
+                  />
+                  <Tooltip 
+                    formatter={(value: number) => `${value.toFixed(1)}%`}
+                    contentStyle={{ backgroundColor: 'white', border: '1px solid #ccc' }}
+                  />
+                  <Bar 
+                    dataKey="value" 
+                    fill={COLORS[0]}
+                  />
+                </BarChart>
+              )}
             </ResponsiveContainer>
           </div>
         </div>
@@ -179,15 +183,9 @@ export default function DataVisualizations({ data }: DataVisualizationsProps) {
     }).filter(Boolean);
   };
 
-  const visualizations = createVisualizations();
-
   return (
     <div className="space-y-8">
-      {visualizations.length > 0 ? (
-        visualizations
-      ) : (
-        <div>No suitable data found for visualization</div>
-      )}
+      {createVisualizations()}
     </div>
   );
 }

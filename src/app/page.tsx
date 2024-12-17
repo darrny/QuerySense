@@ -15,10 +15,10 @@ export default function Home() {
       <div className="w-full max-w-3xl mx-auto space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold text-gray-900">
-            Query<span className="text-blue-600">Sense</span>
+          <h1 className="text-4xl font-bold text-white">
+            Query<span className="text-blue-200">Sense</span>
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-blue-100">
             Upload your CSV file and ask questions about your data
           </p>
         </div>
@@ -42,7 +42,7 @@ export default function Home() {
 
         {/* Analysis Result */}
         {analysisResult && (
-          <div className="bg-white rounded-xl shadow-sm border p-6">
+          <div className="bg-white shadow-lg rounded-lg p-6">
             <AnalysisResult result={analysisResult} data={data} />
           </div>
         )}

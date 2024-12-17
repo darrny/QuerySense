@@ -18,6 +18,7 @@ export default function QueryInput({
     const [query, setQuery] = useState('')
     const [error, setError] = useState<string | null>(null)
 
+    // in QueryInput.tsx
     const handleAnalysis = async () => {
         if (!query.trim()) return
         setIsLoading(true)
@@ -31,19 +32,22 @@ export default function QueryInput({
             })
 
             const result = await response.json()
+            console.log('Response from API:', result); // Add this log
 
-            if (!response.ok || result.error) {
+            if (!response.ok) {
                 throw new Error(result.error || 'Failed to analyze data');
             }
 
-            if (!result.result || result.result.trim().length < 10) {
-                throw new Error('Invalid response received');
+            // Check if result.result exists and is not empty
+            if (result.result && typeof result.result === 'string') {
+                onAnalysisComplete(result.result)
+                setError(null)
+            } else {
+                throw new Error('Invalid response format');
             }
 
-            onAnalysisComplete(result.result)
-            setError(null)
         } catch (error) {
-            console.error('Error:', error)
+            console.error('Error in analysis:', error)
             setError(
                 'I apologize, but I encountered an error analyzing your data. ' +
                 'Please try rephrasing your question or try again in a moment.'
@@ -73,7 +77,9 @@ export default function QueryInput({
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask a question about your data..."
-                className="w-full p-4 border border-blue-200 rounded-lg mb-4 h-32 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-4 border border-blue-200 rounded-lg mb-4 h-32 
+                           focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                           text-gray-900 placeholder-gray-500" // Added text color here
             />
 
             {error && (
@@ -95,12 +101,12 @@ export default function QueryInput({
                 onClick={handleAnalysis}
                 disabled={isLoading || !query.trim()}
                 className={`
-              w-full py-2 px-4 rounded-lg font-medium text-white transition-colors
-              ${isLoading || !query.trim()
+                  w-full py-2 px-4 rounded-lg font-medium text-white transition-colors
+                  ${isLoading || !query.trim()
                         ? 'bg-blue-300 cursor-not-allowed'
                         : 'bg-blue-600 hover:bg-blue-700'
                     }
-            `}
+                `}
             >
                 {isLoading ? 'Analyzing...' : 'Analyze'}
             </button>
