@@ -31,16 +31,50 @@
 
 - Simply visit the [website](https://querysense.vercel.app/) and explore!
 
+## Local Development 💻
+```bash
+# Clone the repository
+git clone [your-repo-url]
+
+# Install dependencies
+npm install
+
+# Set up environment variables
+# Create a .env.local file with:
+GOOGLE_API_KEY=your_api_key_here
+
+# Run the development server
+npm run dev
+```
+
 ## Technologies Used 🛠️
 
-- **Next.js**: React framework for building the frontend
-- **TypeScript**: For type-safe, error-free development
-- **Tailwind CSS**: For responsive and stylish UI design
-- **Recharts**: For creating interactive visualizations
-- **PapaParse**: For parsing CSV files in the app
-- **Google Generative AI API**: For processing natural language queries
-- **Anthropic API**: For advanced natural language understanding
-- **Vercel**: For deployment and hosting
+### Frontend Architecture
+- **Next.js 13+** with TypeScript for type-safe development
+- **TailwindCSS** for responsive and clean UI design
+- **React** components for modular and maintainable code structure
+
+### Data Processing & Visualization
+- **PapaParse** for efficient CSV file parsing
+- **Recharts** for interactive and responsive data visualizations
+- Custom algorithms for data distribution analysis and chart type selection
+
+### AI Integration
+- **Google's Gemini Pro** for natural language processing and data analysis
+- Custom prompt engineering for consistent and relevant responses
+
+## Technical Challenges Faced 😔
+1. **AI Response Formatting**: Ensuring consistent formatting of AI responses for proper display
+2. **Chart Responsiveness**: Maintaining chart clarity across different screen sizes
+3. **Data Type Detection**: Accurately detecting and handling various data types for visualization
+4. **Performance Optimization**: Managing large datasets without impacting user experience
+
+### Future Improvements
+- Support for additional file formats (Excel, JSON, etc.)
+- Advanced data filtering capabilities
+- Custom visualization options
+- Data export functionality
+- Session management for analysis history
 
 ## Contributing 🤝
 
