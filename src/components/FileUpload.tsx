@@ -24,7 +24,6 @@ export default function FileUpload({ onDataLoaded }: FileUploadProps) {
         header: true,
         complete: (results) => {
           onDataLoaded(results.data);
-          // Add type checking before accessing data
           if (results.data && results.data.length > 0 && typeof results.data[0] === 'object') {
             setFileInfo({
               fileName: file.name,

@@ -11,14 +11,12 @@ export async function POST(req: Request) {
     try {
         const { data, query } = await req.json()
 
-        // Get column information
         const columns = Object.keys(data[0]);
         const numericColumns = columns.filter(col => {
             const values = data.map((row: DataRow) => row[col]);
             return values.some((val: string) => !isNaN(parseFloat(val)));
         });
 
-        // Create dataset summary
         const summary = {
             totalRows: data.length,
             columns: columns,
@@ -49,8 +47,6 @@ export async function POST(req: Request) {
         const model = genAI.getGenerativeModel({ model: "gemini-pro" });
         const result = await model.generateContent(prompt);
         const response = await result.response;
-        // in route.ts
-        // ... rest of the code remains same ...
 
         const text = response.text();
 
@@ -61,15 +57,13 @@ export async function POST(req: Request) {
             throw new Error('Generated analysis was too short or empty');
         }
 
-        // Ensure the text is properly formatted with the required sections
-        const formattedText = `**Analysis Results**\n${text}`; // Add a header if none exists
+        const formattedText = `**Analysis Results**\n${text}`;
 
         return NextResponse.json({
             result: formattedText,
-            success: true  // Add a success flag
+            success: true
         })
 
-        // ... error handling remains same ...
     } catch (error) {
         console.error('Error in analysis:', error);
         return NextResponse.json(

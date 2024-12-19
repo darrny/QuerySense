@@ -18,7 +18,6 @@ export default function QueryInput({
     const [query, setQuery] = useState('')
     const [error, setError] = useState<string | null>(null)
 
-    // in QueryInput.tsx
     const handleAnalysis = async () => {
         if (!query.trim()) return
         setIsLoading(true)
@@ -32,7 +31,7 @@ export default function QueryInput({
             })
 
             const result = await response.json()
-            console.log('Response from API:', result); // Add this log
+            console.log('Response from API:', result);
 
             if (!response.ok) {
                 throw new Error(result.error || 'Failed to analyze data');
@@ -52,7 +51,7 @@ export default function QueryInput({
                 'I apologize, but I encountered an error analyzing your data. ' +
                 'Please try rephrasing your question or try again in a moment.'
             )
-            onAnalysisComplete('') // Clear previous results
+            onAnalysisComplete('')
         } finally {
             setIsLoading(false)
         }
@@ -79,7 +78,7 @@ export default function QueryInput({
                 placeholder="Ask a question about your data..."
                 className="w-full p-4 border border-blue-200 rounded-lg mb-4 h-32 
                            focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                           text-gray-900 placeholder-gray-500" // Added text color here
+                           text-gray-900 placeholder-gray-500"
             />
 
             {error && (

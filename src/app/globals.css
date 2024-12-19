@@ -4,7 +4,7 @@
 
 :root {
   --foreground-rgb: 255, 255, 255;
-  --background-rgb: 30, 58, 138; /* This is bg-blue-900 in RGB */
+  --background-rgb: 30, 58, 138;
 }
 
 body {

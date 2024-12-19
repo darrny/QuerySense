@@ -1,13 +1,10 @@
 import DataVisualizations from './DataVisualizations'
 
-// in AnalysisResult.tsx
 export default function AnalysisResult({ result, data }: { result: string, data: any[] }) {
     const formatText = (text: string) => {
         if (!text || text.trim().length === 0) {
             return null;
         }
-
-        console.log('Formatting text:', text); // Add this log
 
         // Split the text into sections
         const sections = text.split('\n').reduce((acc: string[][], line) => {

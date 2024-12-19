@@ -128,7 +128,6 @@ export default function DataVisualizations({ data }: DataVisualizationsProps) {
 
       return (
         <div key={index} className="mb-12 p-6 bg-white rounded-lg shadow">
-          {/* Remove truncation of title, let it wrap naturally */}
           <h3 className="text-lg font-semibold text-gray-900 mb-6 whitespace-normal">
             {col.displayName}
           </h3>
@@ -139,11 +138,11 @@ export default function DataVisualizations({ data }: DataVisualizationsProps) {
                   <Pie
                     data={col.distribution}
                     cx="50%"
-                    cy="40%" // Moved up more to make room for legend
-                    outerRadius={90} // Slightly smaller to accommodate legend
+                    cy="40%" 
+                    outerRadius={90}
                     dataKey="value"
                     labelLine={false}
-                    label={({ name, value }) => `${value.toFixed(0)}%`} // Simplified label to just percentage
+                    label={({ name, value }) => `${value.toFixed(0)}%`}
                   >
                     {col.distribution.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -155,7 +154,7 @@ export default function DataVisualizations({ data }: DataVisualizationsProps) {
                   />
                   <Legend
                     verticalAlign="bottom"
-                    height={100} // Increased height for legend
+                    height={100}
                     wrapperStyle={{
                       paddingTop: '20px',
                       fontSize: '12px'
@@ -163,7 +162,7 @@ export default function DataVisualizations({ data }: DataVisualizationsProps) {
                     formatter={(value) => (
                       <span className="text-gray-900 whitespace-normal" style={{
                         display: 'inline-block',
-                        maxWidth: '150px', // Limit width and allow wrapping
+                        maxWidth: '150px',
                         wordBreak: 'break-word'
                       }}>
                         {value}
@@ -174,7 +173,7 @@ export default function DataVisualizations({ data }: DataVisualizationsProps) {
               ) : (
                 <BarChart
                   data={col.distribution}
-                  margin={{ top: 20, right: 30, bottom: 70, left: 60 }} // Increased bottom margin
+                  margin={{ top: 20, right: 30, bottom: 70, left: 60 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis
@@ -182,11 +181,11 @@ export default function DataVisualizations({ data }: DataVisualizationsProps) {
                     interval={0}
                     angle={-45}
                     textAnchor="end"
-                    height={70} // Increased height for labels
+                    height={70}
                     tick={{
                       fill: 'rgb(17, 24, 39)',
                       fontSize: 12,
-                      dy: 25 // Adjusted vertical position of labels
+                      dy: 25
                     }}
                   />
                   <YAxis
