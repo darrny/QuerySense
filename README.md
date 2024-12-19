@@ -34,7 +34,7 @@
 ## Local Development 💻
 ```bash
 # Clone the repository
-git clone [your-repo-url]
+git clone this repos URL
 
 # Install dependencies
 npm install
